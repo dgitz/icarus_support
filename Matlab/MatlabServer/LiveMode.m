@@ -1,112 +1,123 @@
 %LiveMode
 %Program Variables
-classnet_ann = load([net_folder CLASSNET_NAME '.mat']);
-classnet_ann = classnet_ann(1).classnet;
-if ~isempty(COLNET_NAME)
-    colnet_ann = load([net_folder COLNET_NAME '.mat']);
-    colnet_ann = colnet_ann(1).colnet;
+global gOperatingMode
+gOperatingMode = 'Live';
+global ORIG_WIDTH
+Answers = {'ChiefSecurity','MinistryOfTorture','SecurityCompound','None'};
+for i = 1:length(BEST_IDS)
+    ID_NAME = BEST_IDS{i};
+    LoadObject;
+    id_classifiers(i).id_name = ID_NAME;
+    id_classifiers(i).pca = id_pca;
+    id_classifiers(i).knn = id_knn;
+    id_classifiers(i).script = gSCRIPT;
+    id_classifiers(i).threshold = gTHRESHOLD;
+    id_classifiers(i).lowersize = gLOWERSIZE;
+    id_classifiers(i).uppersize = gUPPERSIZE;
 end
-if ~isempty(ROWNET_NAME)
-    
-rownet_ann = load([net_folder ROWNET_NAME '.mat']);
-rownet_ann = rownet_ann(1).rownet;
-end
-livemode_run = true;
 
+livemode_run = true;
+killtimer = 0;
 image_id = 0;
 col = -1;
 row = -1;
+centerx = -1;
+centery = -1;
 total_time = 0;
 total_rate = 0;
 l = 0;
 class_certainty = 1;
 col_certainty = 1;
 row_certainty = 1;
-if FLUSHIMAGE_BUFFER
-    images = dir(imageprocess_folder);
-    if length(images) > 2
-        images(1) = [];
-        images(1) = [];
-        for i = 1:length(images)
-            path = [imageprocess_folder '\' images(i).name];
-            force_delete(path);
-        end
-    end
-    
-end
+disp('starting')
 while(livemode_run)
     l = l + 1;
+    %try
     t1 = tic;
     tA = t1;
-    images = dir(imageprocess_folder);
-    if length(images) < 3 %Nothing in this Folder
-        close
-        tempstr = ['No Images in Buffer.  Waiting...'];
-        disp(tempstr);
-        pause(.5)
-        continue;
+    packet_type = strcat(char(fread(droneserver_socket,8))');
+    packet_length = str2num(strcat(char(fread(droneserver_socket,8)')));
+    if strcmp(packet_type,'$CAM,DFV')
+        image_vector = fread(droneserver_socket,packet_length);
+        cur_image = reshape(fliplr(reshape(image_vector,3,numel(image_vector)/3).'),[64 36 3])/255;
+        cur_image = imrotate(cur_image,-90);
     end
-    images(1) = [];
-    images(1) = [];
-    if DEBUGGING
-        tempstr = ['Images in Buffer: ' num2str(length(images))];
-        disp(tempstr);
-    end
-    loop(l).bufferlength = length(images);
-    cur_imagepath = [imageprocess_folder '\' images(length(images)).name];
-    cur_imagename = images(length(images)).name;
-    image_index = str2num(cur_imagename(6:findstr(cur_imagename,'.')-1));
-    cur_image = imread(cur_imagepath); %Always process the latest image
-    loop(l).loadtime = toc(t1);
+    loop(l).readtime = toc(t1);
     t1 = tic;
-    proc_image = preprocess(cur_image,SCRIPT,0,'Live');
-    vector = reshape(proc_image,[],1);
-    for i = 1:3
-        y = classnet_ann(vector);
-        class = CLASSES(vec2ind(y));
-        class = class{1};
-        class_certainty = y(vec2ind(y));
+    for i = 1:length(id_classifiers)
+        [proc_image,rects]  = preprocess(cur_image,'Live',id_classifiers(i).script,id_classifiers(i).threshold,id_classifiers(i).uppersize,id_classifiers(i).lowersize);
+        vector = reshape(proc_image,[],1);
+        sample = prtDataSetClass(vector');
+        [a,y] = max(id_classifiers(i).knn.run(id_classifiers(i).pca.run(sample)).data);
+        id_classifiers(i).y = y;
+        %     if rects(1).Area > 0
+        %         centerx = ceil(rects(1).Centroid(1));
+        %         centery = ceil(rects(1).Centroid(2));
+        %     else
+        %         centerx = -1;
+        %         centery = -1;
+        %     end
+        
+        
     end
-    if ~isempty(ROWNET_NAME)
-        y = rownet_ann(vector);
-        row_certainty = max(y);
-        row = vec2ind(y);
-    end
-    if ~isempty(COLNET_NAME)
-        y = colnet_ann(vector);
-        col_certainty = max(y);
-        col = vec2ind(y);
-    end
+    values = unique([id_classifiers(:).y]);
     
+    if length(values) > 1 %Democracy Classifier
+        instances = histc([id_classifiers(:).y],values);
+        for i = 1:length(values)
+            [count_max,index_max] = max(instances);
+            if count_max > floor(CONSENSUS * length(id_classifiers))
+                y = values(index_max);
+                last_y = y;
+            else
+                y = length(Answers);
+            end
+        end
+    else
+        y = id_classifiers(1).y;
+    end
+    class = Answers{y};
     loop(l).proctime = toc(t1);
     t1 = tic;
-    certainty = class_certainty * row_certainty * col_certainty;
+    class_certainty = 1;
+    if strcmp(class,'None')
+        certainty = class_certainty;
+    else
+        certainty = class_certainty * row_certainty * col_certainty;
+    end
     if certainty < 0
     end
-    msg = strcat('$TGT,FV,',num2str(image_index),',',class,',',num2str(col),',',num2str(row),',',num2str(round(100*certainty)),'*');
+    header = '$TGT,DFV';
+    %msg = strcat(class,',',num2str(col),',',num2str(row),',',num2str(round(100*certainty)));
+    
+    msg = strcat(class,',',num2str(centerx),',',num2str(centery),',',num2str(round(100*certainty)));
+    send_len = length(msg);
+    fwrite(droneserver_socket,header);
+    fwrite(droneserver_socket,sprintf('%08d',send_len));
     fwrite(droneserver_socket,msg);
-    if DEBUGGING
-        disp([msg '\r\n'])
+    if DEBUG
+        disp([header sprintf('%08d',send_len) msg '\r\n'])
     end
     loop(l).sendtime = toc(t1);
     t1 = tic;
-    if SHOW_IMAGES
+    if SHOW_IMAGES_RUN
         figure(1)
+        clf
         subplot(2,1,1)
         imshow(cur_image)
+        if rects(1).Area > 0
+            hold on
+            plot(centerx,centery,'b.','MarkerSize',20)
+        end
         subplot(2,1,2)
         imshow(proc_image)
     end
     loop(l).showtime = toc(t1);
-    t1 = tic;
-    if FLUSHIMAGE_BUFFER
-        force_delete(cur_imagepath);
-    end
-    loop(l).flushtime = toc(t1);
     total_time = toc(tA);
     total_rate = (1/total_time + total_rate)/2;
     loop(l).totalrate = total_rate;
     tempstr = ['Processing Image in: ' num2str(total_time) ' Seconds at a rate of ' num2str(total_rate) ' Hz'];
-    disp(tempstr)
-    
+    %catch err
+    %end
+    %disp(tempstr)
 end

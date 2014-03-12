@@ -8,7 +8,7 @@
 close all
 clear all
 clc
-
+resize = 10;
 originfolder = [pwd '../../../../icarus_drone_server/media/UnmappedImages'];
 %originfolder = [cd '..\..\icarus_drone_server\media\UnmapedImages'];
 finishfolder = [pwd '../../../../icarus_drone_server/media/RealImages'];
@@ -43,17 +43,18 @@ tempstr = ['Now ' num2str(length(pics)) ' images will be shown to you.  For each
 disp(tempstr)
 for p =1:length(pics)
     imfile = [processfolder '\' pics(p).name];
+    im = imresize(imread(imfile),resize);
     figure(p)
-    imshow(imfile)
+    imshow(im)
     rect = getrect;
-    xmin = rect(1);
-    ymin = rect(2);
-    width = rect(3);
-    height = rect(4);
+    xmin = rect(1)/resize;
+    ymin = rect(2)/resize;
+    width = rect(3)/resize;
+    height = rect(4)/resize;
     xcenter = floor(xmin + width/2);
     ycenter = floor(ymin + height/2);
     hold on;
-    plot(xcenter,ycenter,'r.','MarkerSize',20)
+    plot(xcenter*resize,ycenter*resize,'r.','MarkerSize',20)
     pause(.1)
     close(p);
     source = imfile;
