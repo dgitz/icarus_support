@@ -2,6 +2,7 @@ global gSCRIPT
 global gLOWERSIZE
 global gUPPERSIZE
 global gTHRESHOLD
+global gERODE_SIZE
 global gOperatingMode
 if strcmp(gOperatingMode,'Sim') || strcmp(gOperatingMode,'Live')
     operating_dir = '/ID_Objects';
@@ -13,7 +14,7 @@ PCA_NAME = ['PCA_ID_' ID_NAME];
 CONFIG_NAME = ['CONFIG_ID_' ID_NAME];
 knn_file = [pwd operating_dir '/KNN/' KNN_NAME '.mat'];
 pca_file = [pwd operating_dir '/PCA/' PCA_NAME '.mat'];
-config_file = [pwd operating_dir '\CONFIG\' CONFIG_NAME '.txt'];
+config_file = [pwd operating_dir '/CONFIG/' CONFIG_NAME '.txt'];
 
 loaded = false;
 if exist(knn_file) && exist(pca_file) && exist(config_file)
@@ -38,6 +39,8 @@ if exist(knn_file) && exist(pca_file) && exist(config_file)
                 gUPPERSIZE = str2num(remain);
             case 'SUCCESS_RATE'
                 successrate = str2num(remain);
+            case 'ERODE_SIZE'
+                gERODE_SIZE = str2num(remain);
         end
     end
     

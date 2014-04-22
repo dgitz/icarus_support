@@ -2,7 +2,9 @@
 %Program Variables
 global gOperatingMode
 gOperatingMode = 'Live';
-global ORIG_WIDTH
+global gORIG_WIDTH
+global gORIG_HEIGHT
+global gRESIZE
 Answers = {'ChiefSecurity','MinistryOfTorture','SecurityCompound','None'};
 for i = 1:length(BEST_IDS)
     ID_NAME = BEST_IDS{i};
@@ -14,6 +16,7 @@ for i = 1:length(BEST_IDS)
     id_classifiers(i).threshold = gTHRESHOLD;
     id_classifiers(i).lowersize = gLOWERSIZE;
     id_classifiers(i).uppersize = gUPPERSIZE;
+    id_classifiers(i).erodesize = gERODE_SIZE;
 end
 
 livemode_run = true;
@@ -39,13 +42,14 @@ while(livemode_run)
     packet_length = str2num(strcat(char(fread(droneserver_socket,8)')));
     if strcmp(packet_type,'$CAM,DFV')
         image_vector = fread(droneserver_socket,packet_length);
-        cur_image = reshape(fliplr(reshape(image_vector,3,numel(image_vector)/3).'),[64 36 3])/255;
+        cur_image = reshape(fliplr(reshape(image_vector,1,numel(image_vector)/1).'),[gORIG_WIDTH/gRESIZE gORIG_HEIGHT/gRESIZE])/256;
+        %cur_image = reshape(fliplr(reshape(image_vector,3,numel(image_vector)/3).'),[64 36 3])/255;
         cur_image = imrotate(cur_image,-90);
     end
     loop(l).readtime = toc(t1);
     t1 = tic;
     for i = 1:length(id_classifiers)
-        [proc_image,rects]  = preprocess(cur_image,'Live',id_classifiers(i).script,id_classifiers(i).threshold,id_classifiers(i).uppersize,id_classifiers(i).lowersize);
+        [proc_image,rects]  = preprocess(cur_image,'Live',id_classifiers(i).script,id_classifiers(i).threshold,id_classifiers(i).uppersize,id_classifiers(i).lowersize,id_classifiers(i).erodesize);
         vector = reshape(proc_image,[],1);
         sample = prtDataSetClass(vector');
         [a,y] = max(id_classifiers(i).knn.run(id_classifiers(i).pca.run(sample)).data);

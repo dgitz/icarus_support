@@ -15,5 +15,9 @@ tempstr = ['Avg Rate: ' num2str(sum([loop(:).totalrate])/length(loop)) ' Hz'];
 disp(tempstr)
 tempstr = ['Avg Proc Time: ' num2str(sum([loop(:).proctime])/length(loop)) ' sec'];
 disp(tempstr)
+tempstr = ['Avg Show Time: ' num2str(sum([loop(:).showtime])/length(loop)) ' sec'];
+disp(tempstr)
 tempstr = ['Avg Read Time: ' num2str(sum([loop(:).readtime])/length(loop)) ' sec'];
+disp(tempstr)
+tempstr = ['Avg Total Time: ' num2str(length(loop)/sum([loop(:).totalrate])) ' sec'];
 disp(tempstr)

@@ -59,12 +59,14 @@ if loaded
     end
     sumA = 0;
     last_y = 1;
+    loopcount = 0;
     for index = 1:length(simitems)
+        loopcount = loopcount + 1;
         timer_read = tic;
         simitems(index).origimage = imread(simitems(index).path);
         %preprocess( im,mode,script,threshold,uppersize,lowersize )
         
-        readtime = toc(timer_read);
+        loop(loopcount).readtime = toc(timer_read);
         timer_proc = tic;
         rect_x = 0;
         rect_y = 0;
@@ -107,7 +109,8 @@ if loaded
             
             y = ceil(sum([id_classifiers(:).y])/length(id_classifiers)); %Averaging Method
         end
-        proctime = toc(timer_proc);
+        loop(loopcount).proctime = toc(timer_proc);
+        loop(loopcount).sendtime = 0;
         timer_measure = tic;
         if strcmp(Answers(y),simitems(index).class)
             sumA = sumA + 1;
@@ -117,7 +120,8 @@ if loaded
             tempstr = ['Calc Class: ' Answers{y} ' Actual Class: ' simitems(index).class ' Success Rate: ' num2str(success) '%'];
             disp(tempstr)
         end
-        measuretime = toc(timer_measure);
+        loop(loopcount).measuretime = toc(timer_measure);
+        timer_show = tic;
         if SHOW_IMAGES_SIM
             figure(1)
             clf
@@ -129,10 +133,11 @@ if loaded
 
             
         end
-        etime = readtime + proctime + measuretime;
-        rate = 1/etime;
+        loop(loopcount).showtime = toc(timer_measure);
+        loop(loopcount).etime = loop(loopcount).readtime + loop(loopcount).proctime + loop(loopcount).measuretime + loop(loopcount).showtime;
+        loop(loopcount).totalrate = 1/loop(loopcount).etime;
         if DEBUG
-            disp(['Testing: ' num2str(index) '/' num2str(length(simitems)) ' patterns at a rate of ' num2str(rate) ' Hz.']);
+            disp(['Testing: ' num2str(index) '/' num2str(length(simitems)) ' patterns at a rate of ' num2str(loop(loopcount).totalrate) ' Hz.']);
         end
     end
     disp(['Tested ID ' ID_NAME ' with Success Rate: ' num2str(success) '%']);

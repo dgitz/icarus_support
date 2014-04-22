@@ -2,15 +2,18 @@ global gSCRIPT
 global gTHRESHOLD
 global gLOWERSIZE
 global gUPPERSIZE
+global gERODE_SIZE
+
 success = false;
 iterationcounter = 0;
 ID_NAME = datestr(now,'mm-dd-yyyy_HH-MM-SS');
 PCA_NAME = ['PCA_ID_' ID_NAME];
 KNN_NAME = ['KNN_ID_' ID_NAME];
 CONFIG_NAME = ['CONFIG_ID_' ID_NAME];
-disp(['Training with ' gSCRIPT ', Threshold: ' num2str(gTHRESHOLD),' Lower Size: ' num2str(gLOWERSIZE), ' Upper Size: ' num2str(gUPPERSIZE)])
+disp(['Training with ' gSCRIPT ', Threshold: ' num2str(gTHRESHOLD),' Lower Size: ' num2str(gLOWERSIZE), ' Upper Size: ' num2str(gUPPERSIZE) ' Erode Size: ' num2str(gERODE_SIZE)])
 limitreached = false;
 while(~success && ~limitreached)
+    figindex = 1;
     iterationcounter = iterationcounter + 1;
     try
         LoadTrainingSamples;
@@ -32,20 +35,20 @@ while(~success && ~limitreached)
         dsPca = id_pca.run(train_dataSet);   %Run the PCA analysis on the data
         
         % plot the data.
-        if SHOW_HELP_IMAGES
+        if SHOW_HELP_IMAGES_TRAIN
             figindex = figure(figindex) + 1;
             hold on
             plot(train_dataSet);
-            title([SCRIPT ' Training Vectors'])
+            title([gSCRIPT ' Training Vectors'])
             figindex = figure(figindex) + 2;
             plot(dsPca);
-            title([SCRIPT ' PCA'])
+            title([gSCRIPT ' PCA'])
         end
         id_knn = prtClassKnn;
         id_knn = id_knn.train(dsPca);
-        if SHOW_HELP_IMAGES
+        if SHOW_HELP_IMAGES_TRAIN
             plot(id_knn)
-            title([SCRIPT ' kNN Classifier'])
+            title([gSCRIPT ' kNN Classifier'])
         end
         truth = dsPca.getTargets; %the true class labels
         yOutKfolds = id_knn.kfolds(dsPca,10); %10-Fold cross-validation
@@ -54,7 +57,7 @@ while(~success && ~limitreached)
         %     class guesses - for each observation, our guess is the column with the
         %     most votes!
         [nVotes,guess] = max(yOutKfolds.getObservations,[],2);
-        if SHOW_HELP_IMAGES
+        if SHOW_HELP_IMAGES_TRAIN
             figindex = figure(figindex) + 1;
             subplot(1,1,1); %don't plot in the last figure window.
             prtScoreConfusionMatrix(guess,truth,dsPca.uniqueClasses,dsPca.getClassNames);
@@ -71,7 +74,7 @@ while(~success && ~limitreached)
         %     prtScoreConfusionMatrix(yOutAlgoKfolds,test_dataSet);
         %     title('Testing Classification Confusion Matrix');
         
-        if SHOW_HELP_IMAGES
+        if SHOW_HELP_IMAGES_TRAIN
             figindex = figure(figindex)+1;
             train_dataSet.imagesc;
             
@@ -125,6 +128,7 @@ while(~success && ~limitreached)
             limitreached = true;
         end
     catch err
+        error(err.identifier,err.message)
         limitreached = true;
         success = false;
     end

@@ -2,6 +2,7 @@ global gSCRIPT
 global gLOWERSIZE
 global gUPPERSIZE
 global gTHRESHOLD
+global gERODE_SIZE
 [a,index] = max([myitems(:).success_total]);
 id_pca = myitems(index).pca;
 id_knn = myitems(index).knn;
@@ -15,6 +16,7 @@ fprintf(configfile_id,['PCA_ID:' PCA_NAME '\r\n']);
 fprintf(configfile_id,['KNN_ID:' KNN_NAME '\r\n']);
 fprintf(configfile_id,['SCRIPT:' gSCRIPT '\r\n']);
 fprintf(configfile_id,['THRESHOLD:' num2str(gTHRESHOLD) '\r\n']);
+fprintf(configfile_id,['ERODESIZE:' num2str(gERODE_SIZE) '\r\n']);
 %Add other config items
 fprintf(configfile_id,['LOWER_SIZE:' num2str(gLOWERSIZE) '\r\n']);
 fprintf(configfile_id,['UPPER_SIZE:' num2str(gUPPERSIZE) '\r\n']);
