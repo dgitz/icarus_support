@@ -125,12 +125,18 @@ if loaded
         if SHOW_IMAGES_SIM
             figure(1)
             clf
-            subplot(2,1,1)
+            %subplot(2,1,1)
             
             imshow(simitems(index).origimage);
             hold on
             plot(rect_x,rect_y,'b.','MarkerSize',20)
-
+            if strcmp(Answers(y),simitems(index).class)
+                color = 'g';
+            else
+                color = 'r';
+            end
+            tempstr = [Answers{y} ' ' num2str(success) '%'];
+            text('units','pixels','position',[25 25],'fontsize',10,'color',color,'string',tempstr) 
             
         end
         loop(loopcount).showtime = toc(timer_measure);

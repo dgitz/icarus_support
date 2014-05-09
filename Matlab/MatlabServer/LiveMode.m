@@ -107,14 +107,15 @@ while(livemode_run)
     if SHOW_IMAGES_RUN
         figure(1)
         clf
-        subplot(2,1,1)
+        %subplot(2,1,1)
         imshow(cur_image)
         if rects(1).Area > 0
             hold on
             plot(centerx,centery,'b.','MarkerSize',20)
         end
-        subplot(2,1,2)
-        imshow(proc_image)
+        
+        tempstr = ['Target: ' class];
+        text('units','pixels','position',[25 25],'fontsize',10,'color','b','string',tempstr) 
     end
     loop(l).showtime = toc(t1);
     total_time = toc(tA);
