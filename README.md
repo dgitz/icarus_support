@@ -1,4 +1,4 @@
 icarus_support
 ==============
 
-Support Documentation/Code for the ICARUS Flyer
+Support Documentation/Code for the ICARUS Project
