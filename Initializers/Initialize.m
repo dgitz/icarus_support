@@ -2,8 +2,7 @@
 LoadGlobalVariables;
 SaveResults = 0;
 Load_GlobalDefines;
-Load_Data = 0;
-%Load_Data = 1;  %Load every time
+Load_Data = 1;  %Load every time
 if(exist('Data_Loaded') == 0)
     Load_Data = 1;
 elseif(Data_Loaded == 0)

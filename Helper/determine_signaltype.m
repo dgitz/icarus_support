@@ -22,14 +22,15 @@
 ## Author: David Gitz <robot@dgitzdev>
 ## Created: 2019-08-04
 
-function [retval,retval_string,data_structure,signalname] = determine_signaltype (filename)
+function [easy,retval,retval_string,data_structure,signalname] = determine_signaltype (filename)
 global SIGNALTYPES;
 data_structure = [];
 signalname = 'Unknown';
 if(isempty(strfind(filename,'resource.csv')) == 0)
+  easy=1;
   retval = SIGNALTYPES.RESOURCE;
   retval_string = 'Resource';
-  signalname = filename(1:end-13)
+  signalname = [filename(1:end-13) '_ResourceUsed'];
   data_structure(1).name = 'PID';
   data_structure(1).column = 5;
   data_structure(1).datatype = 'int';
@@ -40,16 +41,32 @@ if(isempty(strfind(filename,'resource.csv')) == 0)
   data_structure(3).column = 7;
   data_structure(3).datatype = 'int';
 elseif(isempty(strfind(filename,'resource_available.csv')) == 0)
+  easy=1;
   retval = SIGNALTYPES.RESOURCE_AVAILABLE;
   retval_string = 'Resource Available';
-  signalname = filename(1:end-23);
+  signalname = [filename(1:end-23) '_ResourceAvailable'];
   data_structure(1).name = 'RAM_MB';
   data_structure(1).column = 6;
   data_structure(1).datatype = 'int';
   data_structure(2).name = 'CPU_Perc';
   data_structure(2).column = 7;
   data_structure(2).datatype = 'int';
+elseif(isempty(strfind(filename,'loadfactor.csv')) == 0)
+  easy=1;
+  retval = SIGNALTYPES.LOAD_FACTOR;
+  retval_string = 'Load Factor';
+  signalname = [filename(1:end-15) '_LoadFactor'];
+  data_structure(1).name = 'LoadFactor_1min';
+  data_structure(1).column = 5;
+  data_structure(1).datatype = 'double';
+  data_structure(2).name = 'LoadFactor_5min';
+  data_structure(2).column = 6;
+  data_structure(2).datatype = 'double';
+  data_structure(3).name = 'LoadFactor_15min';
+  data_structure(3).column = 7;
+  data_structure(3).datatype = 'double';
 else
+  easy=0;
   retval = SIGNALTYPES.UNKNOWN;
   retval_string = 'Unknown';
 end

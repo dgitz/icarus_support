@@ -1,6 +1,9 @@
 %TODO
-%-Timestamps are wrong?
-
+%-Timestamps are wrong? FIXED
+%-CPU Usage should be divided by # of cores I think, and is converted in csv to 0
+%First resource publish is invalid
+%Free RAM looks wrong
+%Free CPU looks wrong
 close all
 clc
 more off

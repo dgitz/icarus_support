@@ -37,15 +37,20 @@ for i = 1:length(listing)
         signal = [];
         
         
-        [signal_type,signal_type_str,struct,name] = determine_signaltype(files(j).name);
+        [easy_processing,signal_type,signal_type_str,struct,name] = determine_signaltype(files(j).name);
         signal.name = name;
+        
         if(signal_type != SIGNALTYPES.UNKNOWN)
-          signal.type = signal_type;
-          signal.type_str = signal_type_str;
-          for (k = 1:length(struct))
-            signal.data{k}.name = struct(k).name;
-            signal.data{k}.values = data(:,(struct(k).column));
-            signal.data{k}.datatype = struct(k).datatype;
+          if(easy_processing == 1)
+            signal.type = signal_type;
+            signal.type_str = signal_type_str;
+            for (k = 1:length(struct))
+              signal.data{k}.name = struct(k).name;
+              signal.data{k}.values = data(:,(struct(k).column));
+              signal.data{k}.datatype = struct(k).datatype;
+            end
+          else
+            a = 1;
           end
           
         else

@@ -41,3 +41,21 @@ for s = 1:length(Signals)
     hold off
   end
 end
+
+%%System Performance Graphs - LOAD FACTOR
+for s = 1:length(Signals)
+  if(Signals{s}.type == SIGNALTYPES.LOAD_FACTOR)
+    fig_title = ['LOAD FACTOR: ' Signals{s}.name];
+    figure('Name',fig_title,'NumberTitle','off')
+    title(fig_title,'Interpreter', 'none');
+    fig_ax1 = subplot(1,1,1);
+    hold on
+    plot(Signals{s}.timestamp,Signals{s}.data{1}.values,'color','b');
+    plot(Signals{s}.timestamp,Signals{s}.data{2}.values,'color','g');
+    plot(Signals{s}.timestamp,Signals{s}.data{3}.values,'color','r');
+    legend('1 Min','5 Min','15 Min')
+    set(legend,'Interpreter','none')
+    xlabel("Time (s)")
+    hold off
+  end
+end
