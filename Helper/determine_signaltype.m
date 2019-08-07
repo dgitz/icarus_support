@@ -65,6 +65,17 @@ elseif(isempty(strfind(filename,'loadfactor.csv')) == 0)
   data_structure(3).name = 'LoadFactor_15min';
   data_structure(3).column = 7;
   data_structure(3).datatype = 'double';
+elseif(isempty(strfind(filename,'uptime.csv')) == 0)
+  easy=1;
+  retval = SIGNALTYPES.UPTIME;
+  retval_string = 'Uptime';
+  signalname = [filename(1:end-11) '_Uptime'];
+  data_structure(1).name = 'Runtime';
+  data_structure(1).column = 4;
+  data_structure(1).datatype = 'double';
+  data_structure(2).name = 'Uptime';
+  data_structure(2).column = 5;
+  data_structure(2).datatype = 'double';
 else
   easy=0;
   retval = SIGNALTYPES.UNKNOWN;

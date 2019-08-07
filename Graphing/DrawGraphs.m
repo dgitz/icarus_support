@@ -59,3 +59,29 @@ for s = 1:length(Signals)
     hold off
   end
 end
+
+%%System Performance Graphs - UPTIME
+for s = 1:length(Signals)
+  if(Signals{s}.type == SIGNALTYPES.UPTIME)
+    fig_title = ['UPTIME: ' Signals{s}.name];
+    figure('Name',fig_title,'NumberTitle','off')
+    title(fig_title,'Interpreter', 'none');
+    fig_ax1 = subplot(2,1,1);
+    hold on
+    plot(Signals{s}.timestamp,Signals{s}.data{1}.values,'color','b');
+    legend('Runtime')
+    set(legend,'Interpreter','none')
+    xlabel("Time (s)")
+    ylabel("Time (s)")
+    hold off
+    
+    fig_ax2 = subplot(2,1,2);
+    hold on
+    plot(Signals{s}.timestamp,Signals{s}.data{2}.values,'color','b');
+    legend('Uptime')
+    set(legend,'Interpreter','none')
+    xlabel("Time (s)")
+    ylabel("Time (s)")
+    hold off
+  end
+end
