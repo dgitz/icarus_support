@@ -1,12 +1,20 @@
 %Initialize
 LoadGlobalVariables;
-SaveResults = 0;
 Load_GlobalDefines;
-Load_Data = 1;  %Load every time
+
 if(exist('Data_Loaded') == 0)
     Load_Data = 1;
 elseif(Data_Loaded == 0)
   Load_Data = 1;
+else
+  Load_Data = 0;
+end
+if(Save_Images == 1)
+  if(exist('output','dir') > 0)
+    delete('output/*')
+    rmdir('output')
+  end
+  mkdir('output')
 end
 
 
