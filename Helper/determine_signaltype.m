@@ -51,6 +51,12 @@ elseif(isempty(strfind(filename,'resource_available.csv')) == 0)
   data_structure(2).name = 'CPU_Perc';
   data_structure(2).column = 7;
   data_structure(2).datatype = 'int';
+  data_structure(3).name = 'RAM_Perc';
+  data_structure(3).column = 8;
+  data_structure(3).datatype = 'int';
+  data_structure(4).name = 'DISK_Perc';
+  data_structure(4).column = 9;
+  data_structure(4).datatype = 'int';
 elseif(isempty(strfind(filename,'loadfactor.csv')) == 0)
   easy=1;
   retval = SIGNALTYPES.LOAD_FACTOR;

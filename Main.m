@@ -13,10 +13,13 @@ addpath(genpath('Initializers'));
 addpath(genpath('Analyze'));
 addpath(genpath('Graphing'));
 datapath_directory = '/home/robot/test';
-Save_Images = 1;
+Show_Figures = 1;
+Save_Images = 0;
 Save_Results = 0;
 Initialize;
 
 print_signals(Signals);
 AnalyzeSignals;
-DrawGraphs;
+if(Show_Figures == 1)
+  DrawGraphs;
+end

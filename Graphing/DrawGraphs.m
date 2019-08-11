@@ -32,17 +32,23 @@ for s = 1:length(Signals)
   if(Signals{s}.type == SIGNALTYPES.RESOURCE_AVAILABLE)
     fig_title = ['RESOURCES AVAILABLE: ' Signals{s}.name];
     fig = figure('Name',fig_title,'NumberTitle','off');
-    fig_ax1 = subplot(2,1,1);
+    fig_ax1 = subplot(3,1,1);
     title(fig_title,'Interpreter', 'none');
     hold on
-    plot(Signals{s}.timestamp,Signals{s}.data{1}.values,'color','b');
-    ylabel("RAM Free (MB)")
+    plot(Signals{s}.timestamp,Signals{s}.data{3}.values,'color','b');
+    ylabel("RAM Free (%)")
     xlabel("Time (s)")
     hold off
-    fig_ax2 = subplot(2,1,2);
+    fig_ax2 = subplot(3,1,2);
     hold on
     plot(Signals{s}.timestamp,Signals{s}.data{2}.values,'color','b');
     ylabel("CPU Free (%)")
+    xlabel("Time (s)")
+    hold off
+    fig_ax3 = subplot(3,1,3);
+    hold on
+    plot(Signals{s}.timestamp,Signals{s}.data{4}.values,'color','b');
+    ylabel("DISK Free (%)")
     xlabel("Time (s)")
     hold off
     figlist{length(figlist)+1}.title = fig_title;
